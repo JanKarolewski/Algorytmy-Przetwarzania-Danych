@@ -1,0 +1,34 @@
+import numpy as np
+from scipy.spatial import distance
+
+count_correct = 0 
+count_wrong = 0
+group = [4, 12, 18, 31, 5]
+print("====")
+
+
+for i in range(len(np.array((test)))):
+    element = test[i][0]
+    if (element in group):
+    
+        min_value = distance.euclidean(test[i][2:4], train[0][2:4])
+
+        for y in range(len(np.array((train)))):
+            dst = distance.euclidean(test[i][2:4], train[y][2:4])
+
+            if (dst <= min_value):
+                new_min_value = dst
+                min_value = new_min_value
+                data  = np.array(train[y])
+
+        if ( int(np.array(data[0])) == int(np.array(test[i][0])) ):
+            count_correct += 1
+        else:
+            count_wrong += 1
+
+sum = count_correct+count_wrong
+print(count_correct)
+print(count_wrong)
+print("sum: " + str(count_correct+count_wrong))
+print("poprawnie sklasyfikowanych: " + str((count_correct/sum)*100) + " %" )
+print("niepoprawnie sklasyfikowanych: " + str((count_wrong/sum)*100) + " %" )
