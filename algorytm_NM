@@ -1,0 +1,144 @@
+import numpy as np
+import math
+from numpy.linalg import inv
+from scipy.spatial import distance #Pobrane w celu sprawdzenia poprawnosci rachunkow
+from sklearn.metrics import confusion_matrix
+
+label = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15","22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36"]
+
+a_dictionary = results_test
+dictionary_items = a_dictionary.items()
+sorted_items = sorted(dictionary_items)
+
+
+
+def mean_and_cov_type_1(xs):
+    srednia = np.array(np.zeros(xs.shape))
+    for x in xs:
+        srednia = srednia + x
+        
+    srednia = np.dot(srednia,1/len(xs))
+    srednia = srednia[0]
+    cov = np.cov(xs, rowvar=False, ddof=0)
+   
+    return srednia, cov
+
+def Mahalanobis_distance(punkt, mean, cov):
+    f = inv(cov)
+    e_distance = np.dot(np.dot(np.array(punkt - mean).T, f), np.array(punkt - mean))  
+    return e_distance
+
+def Euclidean_distance(point1, point2):
+    euklidean = 0
+    for i in range(len(point1)):
+        euklidean = euklidean + np.sqrt((point2[i]-point1[i])**2+(point2[i]-point1[i])**2) # Pythagorean theorem
+    return euklidean
+
+
+#Wyznacza wektor średni dla kazdej klasy, w zadanej macierzy data
+
+def mean_for_each_Class(data):
+    results_test_count = {}
+    for i in range(len(data)):
+        element = data[i][0]
+        if element in results_test_count:
+            results_test_count[element] += 1
+        else: 
+            results_test_count[element] = 1
+
+    return results_test_count
+
+
+#Wyznacza najblizszego sasiada przy wykorzystaniu odleglosci Mahalanobisa
+def nearest_neighbour_by_Mahalanobis(data, point): #data-> baza danych domyslnie=train, point-> analizowany punkt    
+    min_value = 100
+    
+    for i in label_numeric:
+        value = np.array(([np.zeros(test[0].shape)]))
+        
+        for j in range(len(np.array((data)))):
+            if data[j][0] == i:
+                value = np.append(value, [data[j]],axis=0) 
+              help = mean_and_cov_type_1(value)
+        dst =  Mahalanobis_distance(point, help[0], help[1])
+        
+        if (dst <= min_value):
+            new_min_value = dst
+            min_value = new_min_value
+            nearest_class_Mahalanobis = value[1][0]
+            nearest_data_Mahalanobis = value
+
+    return nearest_class_Mahalanobis    #zwraca k
+
+
+    
+
+def nearest_neighbour_by_Euclidean(point):
+    min_value = 0
+    dst = 0
+    for i in range(len(np.array((srednia_wszystko)))):
+        min_value = distance.euclidean(point, srednia_wszystko[0])
+
+        dst = distance.euclidean(point, srednia_wszystko[i])
+
+        if (dst <= min_value):
+                new_min_value = dst
+                min_value = new_min_value
+                data  = np.array(srednia_wszystko[i])
+        return data
+
+
+#klasyfikator nanbliżej średniej za pomoca odleglości Euklidesowej
+count_correct = 0 
+count_wrong = 0
+for i in range(len(np.array((test)))):
+    
+    a = nearest_neighbour_by_Euclidean(test[i])
+    
+    if  np.array(test[i][0]) == a[0] :
+        count_correct += 1
+    else:
+        count_wrong += 1
+        
+
+sum = count_correct+count_wrong
+print(count_correct)
+print(count_wrong)
+print("sum: " + str(count_correct+count_wrong))
+print("poprawnie sklasyfikowanych: " + str((count_correct/sum)*100) + " %" )
+print("niepoprawnie sklasyfikowanych: " + str((count_wrong/sum)*100) + " %" )
+print('end')
+
+
+#klasyfikator nanbliżej średniej za pomoca odleglości Mahalanobisa
+count_correct = 0 
+count_wrong = 0
+y_pred = []
+y_true=[]
+
+for i in range(len(np.array(test))):
+    a = (nearest_neighbour_by_Mahalanobis(train, test[i]))
+    y_pred = np.append(y_pred, int(a))
+    y_true = np.append(y_true, int(test[i][0]))
+    print("Procesing Mahalanobis ~" + str(i))
+    if  np.array(test[i][0]) == a:
+        count_correct += 1
+    else:
+        count_wrong += 1
+
+        
+label_numeric = np.array(label_numeric)
+        
+print(y_pred)
+print(y_true)
+print(label_numeric)
+asd = confusion_matrix(y_true, y_pred, labels= label_numeric)
+print(asd)
+
+sum = count_correct+count_wrong
+print(count_correct)
+print(count_wrong)
+print("sum: " + str(count_correct+count_wrong))
+print("poprawnie sklasyfikowanych: " + str((count_correct/sum)*100) + " %" )
+print("niepoprawnie sklasyfikowanych: " + str((count_wrong/sum)*100) + " %" )
+print('end')
